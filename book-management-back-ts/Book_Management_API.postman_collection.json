@@ -1,0 +1,1999 @@
+{
+  "info": {
+    "_postman_id": "book-mgmt-api-2026",
+    "name": "Book Management API",
+    "description": "Complete API collection for Book Management System - TypeScript Backend\n\nThis collection includes all endpoints for:\n- Authentication\n- User Management\n- Books & Inventory\n- Categories & Authors\n- Borrowing System\n- Orders & Payments\n- File Uploads\n- Admin Dashboard\n\nBase URL: http://localhost:3000/api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "book-management-ts"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "// Check if token exists for protected routes",
+          "const token = pm.collectionVariables.get('token');",
+          "if (token) {",
+          "    console.log('Using auth token for request');",
+          "} else if (pm.request.url.toString().includes('/auth/login') || pm.request.url.toString().includes('/auth/register')) {",
+          "    console.log('Public auth endpoint - no token required');",
+          "} else {",
+          "    console.warn('Warning: No auth token set. Protected routes may fail.');",
+          "}",
+          "",
+          "// Log request details",
+          "console.log('Request:', pm.request.method, pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "// Test response time",
+          "pm.test('Response time is acceptable', function() {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Test response format",
+          "pm.test('Response is JSON', function() {",
+          "    pm.response.to.have.header('Content-Type');",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});",
+          "",
+          "// Test success response structure",
+          "if (pm.response.code >= 200 && pm.response.code < 300) {",
+          "    pm.test('Success response has correct structure', function() {",
+          "        const jsonData = pm.response.json();",
+          "        pm.expect(jsonData).to.have.property('success');",
+          "        pm.expect(jsonData.success).to.be.true;",
+          "    });",
+          "}",
+          "",
+          "// Save token from login/register responses",
+          "if (pm.response.json().data && pm.response.json().data.token) {",
+          "    pm.collectionVariables.set('token', pm.response.json().data.token);",
+          "    console.log('Token saved:', pm.response.json().data.token);",
+          "}",
+          "",
+          "// Save user ID from login/register responses",
+          "if (pm.response.json().data && pm.response.json().data.user && pm.response.json().data.user._id) {",
+          "    pm.collectionVariables.set('userId', pm.response.json().data.user._id);",
+          "    console.log('User ID saved:', pm.response.json().data.user._id);",
+          "}",
+          "",
+          "// Log response status",
+          "console.log('Response Status:', pm.response.code, pm.response.status);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "borrowId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ratingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@example.com",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin@123",
+      "type": "string"
+    },
+    {
+      "key": "userEmail",
+      "value": "user@example.com",
+      "type": "string"
+    },
+    {
+      "key": "userPassword",
+      "value": "User@123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "if (pm.response.json().data && pm.response.json().data.token) {",
+                  "    pm.collectionVariables.set('token', pm.response.json().data.token);",
+                  "    pm.collectionVariables.set('userId', pm.response.json().data.user._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"User@123\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"user\": {\n      \"_id\": \"507f1f77bcf86cd799439011\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"user@example.com\",\n      \"role\": \"User\"\n    }\n  },\n  \"message\": \"Login successful\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registration successful', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response includes user and token', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('user');",
+                  "    pm.expect(jsonData.data).to.have.property('token');",
+                  "    pm.expect(jsonData.data.user).to.have.property('_id');",
+                  "    pm.expect(jsonData.data.user).to.have.property('email');",
+                  "    pm.expect(jsonData.data.user.role).to.equal('User');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"SecurePass@123\",\n  \"phone\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"SecurePass@123\",\n  \"phone\": \"+1234567890\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "register"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"user\": {\n      \"_id\": \"507f1f77bcf86cd799439011\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"newuser@example.com\",\n      \"role\": \"User\",\n      \"isActive\": true\n    }\n  },\n  \"message\": \"Registration successful\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"]
+            },
+            "description": "Verify email with OTP code"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Auth Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Authentication check successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User data returned', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('_id');",
+                  "    pm.expect(jsonData.data).to.have.property('email');",
+                  "    pm.expect(jsonData.data).to.have.property('role');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "check"]
+            },
+            "description": "Check if user is authenticated and get user details"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/check",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "check"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"507f1f77bcf86cd799439011\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"role\": \"User\",\n    \"isActive\": true\n  }\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Authentication endpoints for login, register, and user verification"
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            },
+            "description": "Get current authenticated user's profile"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users/profile",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["users", "profile"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"507f1f77bcf86cd799439011\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+1234567890\",\n    \"role\": \"User\",\n    \"isActive\": true,\n    \"borrowLimit\": 3,\n    \"createdAt\": \"2026-01-01T00:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User Favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "favorites"]
+            },
+            "description": "Get current user's favorite books"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users/favorites",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["users", "favorites"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"507f1f77bcf86cd799439012\",\n      \"title\": \"The Great Gatsby\",\n      \"author\": {\n        \"_id\": \"507f1f77bcf86cd799439013\",\n        \"name\": \"F. Scott Fitzgerald\"\n      },\n      \"price\": {\n        \"current\": 15.99\n      },\n      \"coverImage\": \"http://localhost:3000/public/covers/gatsby.jpg\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add to Favorites",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{bookId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "favorites"]
+            },
+            "description": "Add book to user's favorites"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{bookId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/favorites/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "favorites", "toggle"]
+            },
+            "description": "Toggle book favorite status (add if not exists, remove if exists)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"SecurePass@123\",\n  \"phone\": \"+1987654321\",\n  \"role\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Create new user (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"avatar\": \"http://localhost:3000/public/avatars/john.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            },
+            "description": "Update current user's profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"OldPass@123\",\n  \"newPassword\": \"NewPass@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "change-password"]
+            },
+            "description": "Change user password"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.updated@example.com\",\n  \"phone\": \"+1987654321\",\n  \"role\": \"User\",\n  \"isActive\": true,\n  \"borrowLimit\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Update user details (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all users with pagination (Admin only)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["users"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"507f1f77bcf86cd799439011\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"User\",\n      \"isActive\": true\n    }\n  ],\n  \"pagination\": {\n    \"currentPage\": 1,\n    \"totalPages\": 5,\n    \"totalItems\": 50,\n    \"itemsPerPage\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Get specific user by ID (Admin only)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users/507f1f77bcf86cd799439011",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["users", "507f1f77bcf86cd799439011"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"507f1f77bcf86cd799439011\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+1234567890\",\n    \"role\": \"User\",\n    \"isActive\": true,\n    \"borrowLimit\": 3,\n    \"createdAt\": \"2026-01-01T00:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/favorites/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "favorites", "{{bookId}}"]
+            },
+            "description": "Remove book from favorites"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            },
+            "description": "Delete user (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "User management endpoints"
+    },
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Get All Books",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains books array', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Response includes pagination', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('pagination');",
+                  "    pm.expect(jsonData.pagination).to.have.property('currentPage');",
+                  "    pm.expect(jsonData.pagination).to.have.property('totalPages');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all books with pagination"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/books?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["books"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"507f1f77bcf86cd799439012\",\n      \"title\": \"The Great Gatsby\",\n      \"author\": {\n        \"_id\": \"507f1f77bcf86cd799439013\",\n        \"name\": \"F. Scott Fitzgerald\"\n      },\n      \"serialNumber\": \"ISBN-978-0743273565\",\n      \"price\": {\n        \"original\": 19.99,\n        \"current\": 15.99\n      },\n      \"rentalPrice\": 2.99,\n      \"totalStock\": 10,\n      \"availableStock\": 7,\n      \"category\": \"Fiction\",\n      \"rating\": 4.5\n    }\n  ],\n  \"pagination\": {\n    \"currentPage\": 1,\n    \"totalPages\": 10,\n    \"totalItems\": 100,\n    \"itemsPerPage\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/search?q=gatsby",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "gatsby"
+                }
+              ]
+            },
+            "description": "Search books by title, author, or ISBN"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/books/search?q=gatsby",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["books", "search"],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "gatsby"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"507f1f77bcf86cd799439012\",\n      \"title\": \"The Great Gatsby\",\n      \"author\": {\n        \"name\": \"F. Scott Fitzgerald\"\n      },\n      \"serialNumber\": \"ISBN-978-0743273565\",\n      \"price\": {\n        \"current\": 15.99\n      }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Popular Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/popular?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "popular"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get popular books based on ratings and borrows"
+          },
+          "response": []
+        },
+        {
+          "name": "Get New Arrivals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/new?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "new"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get newly added books"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Books by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/category/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "category", "{{categoryId}}"]
+            },
+            "description": "Get all books in a specific category"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Books by Author",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/author/{{authorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "author", "{{authorId}}"]
+            },
+            "description": "Get all books by a specific author"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Book By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            },
+            "description": "Get detailed information about a specific book"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Book Ratings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/ratings",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "ratings"]
+            },
+            "description": "Get all ratings for a specific book"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "recommendations"]
+            },
+            "description": "Get personalized book recommendations (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Book Rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rating added successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.json().data && pm.response.json().data._id) {",
+                  "    pm.collectionVariables.set('ratingId', pm.response.json().data._id);",
+                  "    console.log('Rating ID saved:', pm.response.json().data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excellent book! Highly recommended.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/ratings",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "ratings"]
+            },
+            "description": "Add rating to a book (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Book (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.json().data && pm.response.json().data._id) {",
+                  "    pm.collectionVariables.set('bookId', pm.response.json().data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Great Gatsby\",\n  \"author\": \"{{authorId}}\",\n  \"serialNumber\": \"ISBN-978-0743273565\",\n  \"price\": {\n    \"original\": 19.99,\n    \"current\": 15.99\n  },\n  \"rentalPrice\": 2.99,\n  \"lateFeePerDay\": 1.0,\n  \"totalStock\": 10,\n  \"availableStock\": 10,\n  \"category\": \"{{categoryId}}\",\n  \"description\": \"A classic American novel\",\n  \"publisher\": \"Scribner\",\n  \"publishedYear\": 1925,\n  \"language\": \"English\",\n  \"pages\": 180,\n  \"format\": \"Hardcover\",\n  \"isbn10\": \"0743273567\",\n  \"isbn13\": \"978-0743273565\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            },
+            "description": "Create new book (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Book (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Great Gatsby - Updated Edition\",\n  \"price\": {\n    \"original\": 19.99,\n    \"current\": 12.99\n  },\n  \"rentalPrice\": 2.49,\n  \"totalStock\": 15,\n  \"availableStock\": 12,\n  \"description\": \"An updated classic American novel\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            },
+            "description": "Update book details (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Book Rating",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/ratings/{{ratingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "ratings", "{{ratingId}}"]
+            },
+            "description": "Delete a rating from a book"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Book (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Book deleted successfully', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Success message returned', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            },
+            "description": "Delete book (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Book management and browsing endpoints"
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "Get all book categories"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/categories",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["categories"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"507f1f77bcf86cd799439014\",\n      \"name\": \"Fiction\",\n      \"description\": \"Fictional literature\",\n      \"bookCount\": 45\n    },\n    {\n      \"_id\": \"507f1f77bcf86cd799439015\",\n      \"name\": \"Non-Fiction\",\n      \"description\": \"Non-fictional books\",\n      \"bookCount\": 32\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            },
+            "description": "Get specific category details"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.json().data && pm.response.json().data._id) {",
+                  "    pm.collectionVariables.set('categoryId', pm.response.json().data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Science Fiction\",\n  \"description\": \"Books about futuristic and imaginative concepts\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "Create new category (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Science Fiction & Fantasy\",\n  \"description\": \"Books about futuristic, imaginative, and fantasy concepts\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            },
+            "description": "Update category details (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            },
+            "description": "Delete category (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Category management endpoints"
+    },
+    {
+      "name": "Authors",
+      "item": [
+        {
+          "name": "Get All Authors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/authors?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["authors"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all authors with pagination"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/authors?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["authors"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"507f1f77bcf86cd799439013\",\n      \"name\": \"F. Scott Fitzgerald\",\n      \"bio\": \"American novelist\",\n      \"birthDate\": \"1896-09-24\",\n      \"nationality\": \"American\",\n      \"bookCount\": 5\n    }\n  ],\n  \"pagination\": {\n    \"currentPage\": 1,\n    \"totalPages\": 3,\n    \"totalItems\": 30,\n    \"itemsPerPage\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Author By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/authors/{{authorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["authors", "{{authorId}}"]
+            },
+            "description": "Get specific author with their books"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Author (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.json().data && pm.response.json().data._id) {",
+                  "    pm.collectionVariables.set('authorId', pm.response.json().data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"F. Scott Fitzgerald\",\n  \"bio\": \"Francis Scott Key Fitzgerald was an American novelist and short story writer.\",\n  \"birthDate\": \"1896-09-24\",\n  \"deathDate\": \"1940-12-21\",\n  \"nationality\": \"American\",\n  \"website\": \"https://example.com\",\n  \"photo\": \"http://localhost:3000/public/authors/fitzgerald.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authors",
+              "host": ["{{baseUrl}}"],
+              "path": ["authors"]
+            },
+            "description": "Create new author (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Author (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"F. Scott Fitzgerald\",\n  \"bio\": \"Francis Scott Key Fitzgerald was an American novelist and short story writer, widely regarded as one of the greatest American writers of the 20th century.\",\n  \"birthDate\": \"1896-09-24\",\n  \"deathDate\": \"1940-12-21\",\n  \"nationality\": \"American\",\n  \"website\": \"https://fscottfitzgerald.org\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/authors/{{authorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["authors", "{{authorId}}"]
+            },
+            "description": "Update author details (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Author (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/authors/{{authorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["authors", "{{authorId}}"]
+            },
+            "description": "Delete author (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Author management endpoints"
+    },
+    {
+      "name": "Borrows",
+      "item": [
+        {
+          "name": "Get My Borrows",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "my"]
+            },
+            "description": "Get current user's borrow history"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Borrow By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/{{borrowId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "{{borrowId}}"]
+            },
+            "description": "Get specific borrow record details"
+          },
+          "response": []
+        },
+        {
+          "name": "Request Borrow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.json().data && pm.response.json().data._id) {",
+                  "    pm.collectionVariables.set('borrowId', pm.response.json().data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{bookId}}\",\n  \"borrowDays\": 14\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrows/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "request"]
+            },
+            "description": "Request to borrow a book"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Borrow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/{{borrowId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "{{borrowId}}", "cancel"]
+            },
+            "description": "Cancel a borrow request"
+          },
+          "response": []
+        },
+        {
+          "name": "Extend Borrow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"days\": 7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrows/{{borrowId}}/extend",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "{{borrowId}}", "extend"]
+            },
+            "description": "Extend borrow period"
+          },
+          "response": []
+        },
+        {
+          "name": "Return Book",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/{{borrowId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "{{borrowId}}", "return"]
+            },
+            "description": "Return a borrowed book"
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Borrow (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/{{borrowId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "{{borrowId}}", "approve"]
+            },
+            "description": "Approve a borrow request (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Borrow (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Book is currently unavailable\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrows/{{borrowId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "{{borrowId}}", "reject"]
+            },
+            "description": "Reject a borrow request (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Borrows (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all borrow records (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Overdue Borrows (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrows/overdue",
+              "host": ["{{baseUrl}}"],
+              "path": ["borrows", "overdue"]
+            },
+            "description": "Get all overdue borrow records (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Book borrowing system endpoints"
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "my"]
+            },
+            "description": "Get current user's order history"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}"]
+            },
+            "description": "Get specific order details"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response includes order ID', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('_id');",
+                  "});",
+                  "",
+                  "if (pm.response.json().data && pm.response.json().data._id) {",
+                  "    pm.collectionVariables.set('orderId', pm.response.json().data._id);",
+                  "    console.log('Order ID saved:', pm.response.json().data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"book\": \"{{bookId}}\",\n      \"quantity\": 2,\n      \"price\": 15.99\n    }\n  ],\n  \"shippingAddress\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\",\n    \"country\": \"USA\"\n  },\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Create a new order"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "cancel"]
+            },
+            "description": "Cancel an order"
+          },
+          "response": []
+        },
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"credit_card\",\n  \"cardDetails\": {\n    \"number\": \"4111111111111111\",\n    \"expiry\": \"12/26\",\n    \"cvv\": \"123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/pay",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "pay"]
+            },
+            "description": "Process payment for an order"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all orders (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "stats"]
+            },
+            "description": "Get order statistics (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shipped\",\n  \"trackingNumber\": \"TRACK123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "status"]
+            },
+            "description": "Update order status (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Order management endpoints"
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Upload File (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload"]
+            },
+            "description": "Upload a file (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Ebook (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ebook",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload/ebook",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload", "ebook"]
+            },
+            "description": "Upload an ebook file (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Audiobook (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "audiobook",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload/audiobook",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload", "audiobook"]
+            },
+            "description": "Upload an audiobook file (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "File upload endpoints"
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Bulk Update User Status (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userIds\": [\"507f1f77bcf86cd799439011\", \"507f1f77bcf86cd799439012\"],\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/bulk-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "bulk-status"]
+            },
+            "description": "Bulk update user status (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "dashboard"]
+            },
+            "description": "Get dashboard statistics (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recent Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/activity",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "activity"]
+            },
+            "description": "Get recent system activity (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Revenue Chart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/revenue",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "revenue"]
+            },
+            "description": "Get revenue chart data (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Top Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/top-books",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "top-books"]
+            },
+            "description": "Get top books by sales/ratings/borrows (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/user-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "user-stats"]
+            },
+            "description": "Get user statistics (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/category-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "category-stats"]
+            },
+            "description": "Get category statistics (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Inventory Alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/inventory-alerts",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "inventory-alerts"]
+            },
+            "description": "Get inventory alerts for low/out of stock (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Export Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/export/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "export", "users"]
+            },
+            "description": "Export data (users, books, orders, borrows) (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Admin dashboard and analytics endpoints"
+    }
+  ]
+}
