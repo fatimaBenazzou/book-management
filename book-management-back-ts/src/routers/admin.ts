@@ -5,7 +5,7 @@ import {
   getRevenueChart,
   getTopBooks,
   getUserStats,
-  bulkUpdateUserStatus,
+  // bulkUpdateUserStatus,
   getCategoryStats,
   getInventoryAlerts,
   exportData,
@@ -71,7 +71,7 @@ router.get("/inventory-alerts", getInventoryAlerts);
  * @desc    Bulk update user status
  * @access  Private/Admin
  */
-router.post("/users/bulk-status", bulkUpdateUserStatus);
+// router.post("/users/bulk-status", bulkUpdateUserStatus);
 
 /**
  * @route   GET /api/admin/export/:type
