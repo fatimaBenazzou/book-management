@@ -1,0 +1,68 @@
+import type { Author } from "@/types/author";
+
+export const mockAuthors: Author[] = [
+  {
+    _id: "507f1f77bcf86cd799439011",
+    id: "507f1f77bcf86cd799439011",
+    name: "George Orwell",
+    bio: "English novelist and essayist, journalist and critic. Best known for his allegorical novella Animal Farm and the dystopian novel Nineteen Eighty-Four.",
+    createdAt: "2024-01-15T10:30:00.000Z",
+    updatedAt: "2024-01-15T10:30:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439012",
+    id: "507f1f77bcf86cd799439012",
+    name: "Jane Austen",
+    bio: "English novelist known primarily for her six major novels, which interpret, critique and comment upon the British landed gentry at the end of the 18th century.",
+    createdAt: "2024-01-16T11:00:00.000Z",
+    updatedAt: "2024-01-16T11:00:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439013",
+    id: "507f1f77bcf86cd799439013",
+    name: "Mark Twain",
+    bio: "American writer, humorist, entrepreneur, publisher, and lecturer. He was lauded as the greatest humorist the United States has produced.",
+    createdAt: "2024-01-17T09:15:00.000Z",
+    updatedAt: "2024-01-17T09:15:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439014",
+    id: "507f1f77bcf86cd799439014",
+    name: "Harper Lee",
+    bio: "American novelist best known for her 1960 novel To Kill a Mockingbird. She also wrote the novel Go Set a Watchman.",
+    createdAt: "2024-01-18T14:20:00.000Z",
+    updatedAt: "2024-01-18T14:20:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439015",
+    id: "507f1f77bcf86cd799439015",
+    name: "F. Scott Fitzgerald",
+    bio: "American novelist, essayist, and short story writer. He is best known for his novels depicting the flamboyance and excess of the Jazz Age.",
+    createdAt: "2024-01-19T08:45:00.000Z",
+    updatedAt: "2024-01-19T08:45:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439016",
+    id: "507f1f77bcf86cd799439016",
+    name: "Ernest Hemingway",
+    bio: "American journalist, novelist, short-story writer, and sportsman. His economical and understated style had a strong influence on 20th-century fiction.",
+    createdAt: "2024-01-20T12:30:00.000Z",
+    updatedAt: "2024-01-20T12:30:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439017",
+    id: "507f1f77bcf86cd799439017",
+    name: "Virginia Woolf",
+    bio: "English writer, considered one of the most important modernist 20th-century authors and a pioneer in the use of stream of consciousness as a narrative device.",
+    createdAt: "2024-01-21T16:00:00.000Z",
+    updatedAt: "2024-01-21T16:00:00.000Z",
+  },
+  {
+    _id: "507f1f77bcf86cd799439018",
+    id: "507f1f77bcf86cd799439018",
+    name: "Charles Dickens",
+    bio: "English writer and social critic. He created some of the world's best-known fictional characters and is regarded by many as the greatest novelist of the Victorian era.",
+    createdAt: "2024-01-22T10:15:00.000Z",
+    updatedAt: "2024-01-22T10:15:00.000Z",
+  },
+];
