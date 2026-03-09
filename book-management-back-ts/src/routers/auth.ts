@@ -2,7 +2,7 @@ import { Router } from "express";
 import { login, register, checkUser } from "../handlers/auth.js";
 import { CheckAuth } from "../middlewares/auth.js";
 import { validateBodySchema } from "../middlewares/validations.js";
-import { loginSchema } from "../validation/users.js";
+import { loginSchema, userSchema } from "../validation/users.js";
 
 const router = Router();
 
@@ -18,7 +18,7 @@ router.post("/login", validateBodySchema(loginSchema), login);
  * @desc    Register new user
  * @access  Public
  */
-router.post("/register", register);
+router.post("/register", validateBodySchema(userSchema), register);
 
 /**
  * @route   GET /api/auth/check

@@ -21,10 +21,21 @@ const app = express();
 // Global Middleware
 // =====================
 
-// CORS configuration
+// CORS configuration — supports multiple comma-separated origins in FRONTEND_DOMAIN
+const allowedOrigins = (process.env.FRONTEND_DOMAIN || "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_DOMAIN || "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile/curl) or matching origins
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+      }
+    },
     credentials: true,
   }),
 );

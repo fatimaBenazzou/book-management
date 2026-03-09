@@ -28,6 +28,7 @@ const userSchema = new Schema<IUserDocument>(
     phone: {
       type: String,
       required: false,
+      sparse: true,
     },
     avatar: {
       type: String,

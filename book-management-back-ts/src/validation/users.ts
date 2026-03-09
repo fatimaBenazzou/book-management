@@ -38,6 +38,8 @@ const userSchema = loginSchema.extend({
     .transform((val) => val || null),
 });
 
+export { userSchema };
+
 /**
  * Full user schema (Admin)
  * Includes role assignment

@@ -95,12 +95,18 @@ export async function register(req: Request, res: Response): Promise<void> {
       token,
     });
   } catch (err) {
-    const error = err as Error & { code?: number };
+    const error = err as Error & {
+      code?: number;
+      keyValue?: Record<string, unknown>;
+    };
 
     if (error.code === 11000) {
+      const conflictingField = error.keyValue
+        ? Object.keys(error.keyValue)[0]
+        : "field";
       res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: `A user with this ${conflictingField} already exists`,
       });
     } else {
       res.status(400).json({
