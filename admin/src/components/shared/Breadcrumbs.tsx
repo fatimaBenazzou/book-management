@@ -10,7 +10,7 @@ interface BreadcrumbItem {
 }
 
 interface BreadcrumbsProps {
-  items: BreadcrumbItem[];
+  items: readonly BreadcrumbItem[];
   className?: string;
 }
 
@@ -62,7 +62,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
                     // Hide middle items on very small screens
                     index > 0 &&
                       index < visibleItems.length - 1 &&
-                      "hidden sm:flex"
+                      "hidden sm:flex",
                   )}
                 >
                   {item.icon}
@@ -79,7 +79,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
                     !isLast &&
                       index > 0 &&
                       index < visibleItems.length - 1 &&
-                      "hidden sm:flex"
+                      "hidden sm:flex",
                   )}
                   aria-current={isLast ? "page" : undefined}
                 >

@@ -10,8 +10,14 @@ import { useUserBorrowingStats } from "./useUserBorrowingStats";
 const PAGE_SIZE = 5;
 
 export function useUsersPageData() {
-  const { data: usersResponse, isLoading, error, refetch } = useQuery({
-    queryKey: ["users"], queryFn: () => getAllUsers(),
+  const {
+    data: usersResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => getAllUsers(),
   });
   const users = usersResponse?.data ?? [];
   const getUserBorrowingStats = useUserBorrowingStats();
@@ -21,23 +27,49 @@ export function useUsersPageData() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<FilterValue>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const handleSearch = (q: string) => { setSearchQuery(q); setCurrentPage(1); };
-  const handleFilterChange = (f: FilterValue) => { setFilters(f); setCurrentPage(1); };
-  const handleAddNew = () => { setEditingUser(null); setFormOpen(true); };
+  const handleSearch = (q: string) => {
+    setSearchQuery(q);
+    setCurrentPage(1);
+  };
+  const handleFilterChange = (f: FilterValue) => {
+    setFilters(f);
+    setCurrentPage(1);
+  };
+  const handleAddNew = () => {
+    setEditingUser(null);
+    setFormOpen(true);
+  };
   const filteredUsers = useMemo(
-    () => filterUsers(users, searchQuery, filters),
+    () => filterUsers(users, searchQuery, filters as Record<string, string>),
     [users, searchQuery, filters],
   );
-  const { data: paginatedUsers, totalItems, totalPages } = paginate(
-    filteredUsers, currentPage, PAGE_SIZE,
-  );
+  const {
+    data: paginatedUsers,
+    totalItems,
+    totalPages,
+  } = paginate(filteredUsers, currentPage, PAGE_SIZE);
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
 
   return {
-    isLoading, error, refetch, paginatedUsers, totalItems, totalPages,
-    getUserBorrowingStats, formOpen, setFormOpen, editingUser,
-    filterSheetOpen, setFilterSheetOpen, searchQuery, filters,
-    currentPage, setCurrentPage, activeFiltersCount,
-    handleSearch, handleFilterChange, handleAddNew,
+    isLoading,
+    error,
+    refetch,
+    paginatedUsers,
+    totalItems,
+    totalPages,
+    getUserBorrowingStats,
+    formOpen,
+    setFormOpen,
+    editingUser,
+    filterSheetOpen,
+    setFilterSheetOpen,
+    searchQuery,
+    filters,
+    currentPage,
+    setCurrentPage,
+    activeFiltersCount,
+    handleSearch,
+    handleFilterChange,
+    handleAddNew,
   };
 }

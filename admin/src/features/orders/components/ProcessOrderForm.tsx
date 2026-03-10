@@ -1,9 +1,20 @@
 import { useEffect, useMemo } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { SelectField, TextareaField } from "@/components/shared/FormFields";
+import {
+  SelectField,
+  TextareaField,
+  type AnyFieldApi,
+} from "@/components/shared/FormFields";
 import { processOrderFormSchema } from "@/validations/order";
 import type { Order, OrderStatus } from "@/types/order";
 import { useProcessOrderMutation } from "./useProcessOrderMutation";
@@ -27,7 +38,12 @@ const statusOptions = [
   { value: "cancelled", label: "Cancelled" },
 ];
 
-export function ProcessOrderForm({ open, onOpenChange, order, onSuccess }: ProcessOrderFormProps) {
+export function ProcessOrderForm({
+  open,
+  onOpenChange,
+  order,
+  onSuccess,
+}: ProcessOrderFormProps) {
   const { mutate: processOrder, isPending } = useProcessOrderMutation();
 
   const defaultValues = useMemo<ProcessOrderValues>(
@@ -39,8 +55,19 @@ export function ProcessOrderForm({ open, onOpenChange, order, onSuccess }: Proce
     defaultValues,
     onSubmit: async ({ value }) => {
       processOrder(
-        { id: order._id, data: { status: value.status as OrderStatus, note: value.note || undefined } },
-        { onSuccess: () => { onOpenChange(false); onSuccess?.(); } },
+        {
+          id: order._id,
+          data: {
+            status: value.status as OrderStatus,
+            note: value.note || undefined,
+          },
+        },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+            onSuccess?.();
+          },
+        },
       );
     },
   });
@@ -54,24 +81,61 @@ export function ProcessOrderForm({ open, onOpenChange, order, onSuccess }: Proce
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Process Order</DialogTitle>
-          <DialogDescription>Update the status of this order.</DialogDescription>
+          <DialogDescription>
+            Update the status of this order.
+          </DialogDescription>
         </DialogHeader>
         <ProcessOrderSummary order={order} />
         <form
-          onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); form.handleSubmit(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
           className="space-y-4"
         >
-          <form.Field name="status" validators={{ onChange: processOrderFormSchema.shape.status }}>
-            {(field) => <SelectField field={field} label="Status" options={statusOptions} required />}
+          <form.Field
+            name="status"
+            validators={{ onChange: processOrderFormSchema.shape.status }}
+          >
+            {(field) => (
+              <SelectField
+                field={field as AnyFieldApi<string>}
+                label="Status"
+                options={statusOptions}
+                required
+              />
+            )}
           </form.Field>
-          <form.Field name="note" validators={{ onChange: processOrderFormSchema.shape.note }}>
-            {(field) => <TextareaField field={field} label="Note" placeholder="Add a note about this status change..." rows={2} />}
+          <form.Field
+            name="note"
+            validators={{ onChange: processOrderFormSchema.shape.note }}
+          >
+            {(field) => (
+              <TextareaField
+                field={field as AnyFieldApi<string>}
+                label="Note"
+                placeholder="Add a note about this status change..."
+                rows={2}
+              />
+            )}
           </form.Field>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+            >
               {([canSubmit, isSubmitting]) => (
-                <Button type="submit" disabled={!canSubmit || isSubmitting || isPending}>
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting || isPending}
+                >
                   {isSubmitting || isPending ? "Saving..." : "Update Order"}
                 </Button>
               )}
